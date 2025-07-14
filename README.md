@@ -1,5 +1,8 @@
 # Natural Language Cross-Platform Data Query RAG Agent
 
+<img width="1079" height="864" alt="image" src="https://github.com/user-attachments/assets/fa5e794f-696f-45be-ab6a-190b8ee198f7" />
+
+
 ## 🎯 Project Overview
 **Built for**: Wealth Portfolio Management for Film Stars and Sports Personalities  
 **Investment Scale**: 100+ Crores Asset Management  
