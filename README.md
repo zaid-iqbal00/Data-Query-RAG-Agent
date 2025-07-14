@@ -319,7 +319,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Zaid Iqbal**
 - GitHub: [@zaid-iqbal00](https://github.com/zaid-iqbal00)
-- Email: your.email@example.com
+- Email: syedzaid5101@gmail.com
 
 ## 🙏 Acknowledgments
 
