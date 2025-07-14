@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Agent - Simple Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chat-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .user-message {
+            background: #e3f2fd;
+            text-align: right;
+        }
+        .bot-message {
+            background: #f1f8e9;
+        }
+        .endpoints {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .endpoint {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+        .endpoint:hover {
+            background: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 RAG Agent</h1>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">
+                <strong>RAG Agent:</strong> Hello! I'm your intelligent data assistant. Ask me about profiles, transactions, or relationship managers.
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Ask a question about your data..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        
+        <div class="endpoints">
+            <h3>Quick Data Access:</h3>
+            <div class="endpoint" onclick="loadData('/profiles')">📊 View All Profiles</div>
+            <div class="endpoint" onclick="loadData('/transactions')">💳 View All Transactions</div>
+            <div class="endpoint" onclick="loadData('/relationship_managers')">👥 View Relationship Managers</div>
+            <div class="endpoint" onclick="checkHealth()">❤️ Check System Health</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            chatBox.innerHTML += `<div class="message user-message"><strong>You:</strong> ${message}</div>`;
+            input.value = '';
+            
+            try {
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                const data = await response.json();
+                chatBox.innerHTML += `<div class="message bot-message"><strong>RAG Agent:</strong> ${data.response}</div>`;
+            } catch (error) {
+                chatBox.innerHTML += `<div class="message bot-message"><strong>Error:</strong> Could not connect to RAG Agent. Make sure the backend is running.</div>`;
+            }
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        async function loadData(endpoint) {
+            const chatBox = document.getElementById('chatBox');
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+                
+                chatBox.innerHTML += `<div class="message bot-message"><strong>Data from ${endpoint}:</strong><br><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                chatBox.innerHTML += `<div class="message bot-message"><strong>Error:</strong> Could not load data from ${endpoint}</div>`;
+            }
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        async function checkHealth() {
+            const chatBox = document.getElementById('chatBox');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                chatBox.innerHTML += `<div class="message bot-message"><strong>System Status:</strong> ${data.status === 'ok' ? '✅ Healthy' : '❌ Issues detected'}</div>`;
+            } catch (error) {
+                chatBox.innerHTML += `<div class="message bot-message"><strong>System Status:</strong> ❌ Backend not responding</div>`;
+            }
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        // Allow Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
